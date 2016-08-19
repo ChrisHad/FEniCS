@@ -15,17 +15,11 @@ if [ -z "${FENICS_HOME}" ]; then
     exit -1
 fi
 
-#fenics-pull $@
-#fenics-build $@
-
-
-
 # pull fenics projects
 #
 # usage: fenics-pull [ffc] [dolfin]
 #
 # With no args, will pull all fenics projects
-
 
 function pull () {
     for project in $parts; do
@@ -44,9 +38,6 @@ function pull () {
     done
 }
 
-#pull $@
-
-
 function build_cmake () {
     # build a project with cmake (dolfin, mshr)
     project="$1"
@@ -55,7 +46,11 @@ function build_cmake () {
     build="$SRC_DIR/$project/build"
     mkdir -p "$build"
     cd "$build"
-    cmake ../ -DCMAKE_INSTALL_PREFIX=${FENICS_HOME} -DCMAKE_BUILD_TYPE=${FENICS_BUILD_TYPE} -DPYTHON_EXECUTABLE:FILEPATH=${PYTHON} -Wno-dev ${CMAKE_EXTRA_ARGS} -DSLEPC4PY_INCLUDE_DIRS="/usr/local/lib/python2.7/dist-packages/petsc4py/include;/usr/local/lib/python2.7/dist-packages/slepc4py/include"
+    cmake ../ -DCMAKE_INSTALL_PREFIX=${FENICS_HOME} \
+ 	  -DCMAKE_BUILD_TYPE=${FENICS_BUILD_TYPE}   \
+	  -DPYTHON_EXECUTABLE:FILEPATH=${PYTHON}    \
+	  -Wno-dev ${CMAKE_EXTRA_ARGS}		    \
+	  -DSLEPC4PY_INCLUDE_DIRS="/usr/local/lib/python2.7/dist-packages/petsc4py/include;/usr/local/lib/python2.7/dist-packages/slepc4py/include"
     make
     make install
 }
