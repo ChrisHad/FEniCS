@@ -1,0 +1,110 @@
+#!/bin/bash
+
+set -e
+
+PYTHON="${PYTHON:-python}"
+FENICS_BUILD_TYPE="${FENICS_BUILD_TYPE:-Release}"
+
+if [ -z "$SRC_DIR" ]; then
+    echo "SRC_DIR must be defined" >&2
+    exit -1
+fi
+
+if [ -z "${FENICS_HOME}" ]; then
+    echo "FENICS_HOME must be defined" >&2
+    exit -1
+fi
+
+#fenics-pull $@
+#fenics-build $@
+
+
+
+# pull fenics projects
+#
+# usage: fenics-pull [ffc] [dolfin]
+#
+# With no args, will pull all fenics projects
+
+
+function pull () {
+    for project in $parts; do
+        echo "FENICS-BUILDER: Pulling $project..."
+        cd "$SRC_DIR"
+        if [ -d $project ]; then
+            cd $project
+            git pull
+        else
+            git clone https://bitbucket.org/fenics-project/$project.git
+            cd $project
+            if [ ! -z "${FENICS_VERSION}" ]; then
+                git checkout $project-${FENICS_VERSION}
+            fi
+        fi
+    done
+}
+
+#pull $@
+
+
+function build_cmake () {
+    # build a project with cmake (dolfin, mshr)
+    project="$1"
+    echo "FENICS-BUILDER: Building $project with CMake..."
+
+    build="$SRC_DIR/$project/build"
+    mkdir -p "$build"
+    cd "$build"
+    cmake ../ -DCMAKE_INSTALL_PREFIX=${FENICS_HOME} -DCMAKE_BUILD_TYPE=${FENICS_BUILD_TYPE} -DPYTHON_EXECUTABLE:FILEPATH=${PYTHON} -Wno-dev ${CMAKE_EXTRA_ARGS} -DSLEPC4PY_INCLUDE_DIRS="/usr/local/lib/python2.7/dist-packages/petsc4py/include;/usr/local/lib/python2.7/dist-packages/slepc4py/include"
+    make
+    make install
+}
+
+function build () {
+    for project in $@; do
+        echo "FENICS-BUILDER: Building $project..."
+        path="$SRC_DIR/$project"
+        if [ ! -d "$path" ]; then
+            echo "FENICS-BUILDER: $project source cannot be found at $path. Please run fenics-pull first."
+            exit -1
+        fi
+        if [ -e $path/CMakeLists.txt ]; then
+            build_cmake "$project"
+        else
+            cd "$path"
+            ${PYTHON} -m pip install --prefix=${FENICS_HOME} --no-deps --upgrade .
+        fi
+    done
+}
+
+if [ -z "$2" ]; then
+  if [ "${FENICS_VERSION}" == "1.6.0" ]; then
+    parts=(fiat instant ufl ffc dolfin)
+  else
+    parts=(fiat dijitso instant ufl ffc dolfin mshr)
+  fi
+else
+  parts=${@:2}
+fi
+
+if [ ! -z "$1" ]; then
+  if [ "$1" == "pull" ]; then
+    pull $parts 
+  elif [ "$1" == "build" ]; then
+    build $parts 
+  elif [ "$1" == "update" ]; then
+    pull $parts
+    build $parts
+    printf "\033c"
+    echo "FEniCS compilation has finished."
+    echo "Environment variables are already set up automatically."
+    echo ""
+    echo "Try some demos in"
+    echo "    ${FENICS_HOME}/share/dolfin/demo"
+    echo ""
+    echo "The full build is in ${FENICS_HOME} inside the container."
+  else
+    echo "Unknown command"
+    exit -1 
+  fi
+fi
