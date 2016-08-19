@@ -86,51 +86,6 @@ export PYTHON=/usr/bin/python${FENICS_PYTHON_MAJOR_VERSION}
 " >> /environment 
 EOF
 
-RunCmd /bin/bash <<EOF
-: '
-if [ -z $PETSC_VERSION ] then 
-    export PETSC_VERSION=$PETSC_VERSION
-fi
-if [ -z $SLEPC_VERSION ] then 
-    export SLEPC_VERSION=$SLEPC_VERSION
-fi
-if [ -z $FENICS_PYTHON_MAJOR_VERSION ] then 
-    export FENICS_PYTHON_MAJOR_VERSION=$FENICS_PYTHON_MAJOR_VERSION
-fi
-if [ -z $FENICS_PYTHON_MINOR_VERSION ] then 
-    export FENICS_PYTHON_MINOR_VERSION=$FENICS_PYTHON_MINOR_VERSION
-fi
-if [ -z $PETSC_DIR ] then 
-    export PETSC_DIR=$PETSC_DIR
-fi
-if [ -z $SLEPC_DIR ] then 
-    export SLEPC_DIR=$SLEPC_DIR
-fi
-if [ -z $SWIG_VERSION ] then 
-    export SWIG_VERSION=$SWIG_VERSION
-fi
-if [ -z $MPI4PY_VERSION ] then 
-    export MPI4PY_VERSION=$MPI4PY_VERSION
-fi
-if [ -z $PETSC4PY_VERSION ] then 
-    export PETSC4PY_VERSION=$PETSC4PY_VERSION
-fi
-if [ -z $SLEPC4PY_VERSION ] then 
-    export SLEPC4PY_VERSION=$SLEPC4PY_VERSION
-fi
-if [ -z $TRILINOS_VERSION ] then 
-    export TRILINOS_VERSION=$TRILINOS_VERSION
-fi
-if [ -z $OPENBLAS_NUM_THREADS ] then 
-    export OPENBLAS_NUM_THREADS=$OPENBLAS_NUM_THREADS
-fi
-if [ -z $OPENBLAS_VERBOSE ] then 
-    export OPENBLAS_VERBOSE=$OPENBLAS_VERBOSE
-fi
-# >> /environment
-'
-EOF
-
 RunCmd apt-get -qq update
 InstallPkgs python3-software-properties \
         software-properties-common \
