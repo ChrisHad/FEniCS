@@ -84,12 +84,12 @@ fi
 
 if [ ! -z "$1" ]; then
   if [ "$1" == "pull" ]; then
-    pull $parts 
+    pull ${parts[@]}
   elif [ "$1" == "build" ]; then
-    build $parts 
+    build ${parts[@]}
   elif [ "$1" == "update" ]; then
-    pull $parts
-    build $parts
+    pull ${parts[@]}
+    build ${parts[@]}
     printf "\033c"
     echo "FEniCS compilation has finished."
     echo "Environment variables are already set up automatically."
