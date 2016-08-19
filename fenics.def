@@ -211,7 +211,7 @@ RunCmd /bin/bash <<EOF
                 --prefix=/usr/local/petsc-64 && \
      make && \
      make install && \
-     rm -rf /tmp/*
+     cd .. && rm -rf petsc*
 EOF
 
 
@@ -228,6 +228,7 @@ RunCmd /bin/bash <<EOF
     ./configure --prefix=/usr/local/slepc-64 && \
     make && \
     make install  
+    cd .. && rm -rf slepc*
 EOF
 
 # Install Jupyter, sympy, mpi4py, petsc4py and slepc4py
@@ -246,6 +247,7 @@ RunCmd /bin/bash <<EOF
     ./configure && \
     make && \
     make install
+    cd .. && rm -rf swig*
 EOF
 
 RunCmd /bin/bash <<EOF
