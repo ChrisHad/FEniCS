@@ -181,6 +181,7 @@ RunCmd /bin/bash <<EOF
                 --with-c-support \
                 --with-debugging=0 \
                 --with-shared-libraries \
+		--enable-parallel=1 \
                 --download-suitesparse \
                 --download-scalapack \
                 --download-metis \
@@ -191,6 +192,7 @@ RunCmd /bin/bash <<EOF
                 --download-blacs \
                 --download-spai \
                 --download-ml \
+		--download-hdf5 \
                 --prefix=/usr/local && \
      make && \
      make install && \
@@ -202,12 +204,14 @@ RunCmd /bin/bash <<EOF
                 --with-c-support \
                 --with-debugging=0 \
                 --with-shared-libraries \
+		--enable-parallel=1 \
                 --download-suitesparse \
                 --download-metis \
                 --download-parmetis \
                 --download-ptscotch \
                 --download-hypre \
                 --download-superlu_dist \
+		--download-hdf5 \
                 --prefix=/usr/local/petsc-64 && \
      make && \
      make install && \
