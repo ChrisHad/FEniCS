@@ -211,7 +211,12 @@ EOF
 
 RunCmd /bin/bash <<EOF
     mkdir -p $FENICS_HOME/bin
-    
+#   This should be changed at some point
+    git clone https://github.com/ChrisHad/FEniCS.git 
+    cp FEniCS/fenics* $FENICS_HOME/bin
+    chmod +x $FENICS_HOME/bin/fenics-ctl
+    source $FENICS_HOME/fenics.env.conf
+#    fenics-ctl update
 EOF
 
 Cleanup
