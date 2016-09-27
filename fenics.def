@@ -17,6 +17,7 @@ TRILINOS_VERSION=12.6.3
 OPENBLAS_NUM_THREADS=1 
 OPENBLAS_VERBOSE=0
 LC_ALL=C
+FENICS_PREFIX=$FENICS_HOME/local
 
 if [ -n "${1:-}" ]; then
     PETSC_VERSION="$1"
@@ -34,6 +35,7 @@ if [ -n "${1:-}" ]; then
     OPENBLAS_NUM_THREADS="$1" 
     OPENBLAS_VERBOSE="$1"
     LC_ALL="$1"
+    FENICS_PREFIX="$1"
 fi
 
 
@@ -59,6 +61,7 @@ echo "
 
 # Set the main path here
 export FENICS_HOME=$FENICS_HOME
+export FENICS_PREFIX=$FENICS_PREFIX
 
 if [ ! -d "$FENICS_HOME" ]
 then
@@ -215,7 +218,7 @@ RunCmd /bin/bash <<EOF
     git clone https://github.com/ChrisHad/FEniCS.git 
     cp FEniCS/fenics* $FENICS_HOME/bin
     chmod +x $FENICS_HOME/bin/fenics-ctl
-    source $FENICS_HOME/fenics.env.conf
+    source $FENICS_HOME/bin/fenics.env.conf
 #    fenics-ctl update
 EOF
 
