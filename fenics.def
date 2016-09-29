@@ -122,7 +122,8 @@ InstallPkgs python-dev \
 	libboost-all-dev \
 	libgmp-dev \
 	libmpfr-dev \
-	cmake
+	cmake \
+	vim
 
 RunCmd pip install setuptools && \
     rm -rf /tmp/*

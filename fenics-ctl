@@ -22,7 +22,7 @@ fi
 # With no args, will pull all fenics projects
 
 function pull () {
-    for project in $parts; do
+    for project in $@; do
         echo "FENICS-BUILDER: Pulling $project..."
         cd "$SRC_DIR"
         if [ -d $project ]; then
