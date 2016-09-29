@@ -218,7 +218,7 @@ RunCmd /bin/bash <<EOF
     git clone https://github.com/ChrisHad/FEniCS.git 
     cp FEniCS/fenics* $FENICS_HOME/bin
     chmod +x $FENICS_HOME/bin/fenics-ctl
-    source $FENICS_HOME/bin/fenics.env.conf
+#    source $FENICS_HOME/bin/fenics.env.conf
 #    fenics-ctl update
 EOF
 
