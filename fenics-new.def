@@ -1,0 +1,192 @@
+BootStrap: debian
+OSVersion: xenial
+MirrorURL: http://mirror.bytemark.co.uk/ubuntu/
+Include: bash
+
+%post
+
+PETSC_VERSION=3.7.3
+SLEPC_VERSION=3.7.2
+FENICS_HOME=/usr/local/fenics
+FENICS_PYTHON_MAJOR_VERSION=2
+FENICS_PYTHON_MINOR_VERSION=7
+SLEPC_DIR=/usr/local/slepc-64
+PETSC_DIR=/usr/local/petsc-64
+SWIG_VERSION=3.0.10 
+MPI4PY_VERSION=2.0.0 
+PETSC4PY_VERSION=3.7.0 
+SLEPC4PY_VERSION=3.7.0 
+TRILINOS_VERSION=12.6.3 
+OPENBLAS_NUM_THREADS=1 
+OPENBLAS_VERBOSE=0
+LC_ALL=C
+FENICS_PREFIX=$FENICS_HOME/local
+
+echo "
+export PETSC_VERSION=$PETSC_VERSION 
+export SLEPC_VERSION=$SLEPC_VERSION
+export FENICS_PYTHON_MAJOR_VERSION=$FENICS_PYTHON_MAJOR_VERSION
+export FENICS_PYTHON_MINOR_VERSION=$FENICS_PYTHON_MINOR_VERSION
+export PETSC_DIR=$PETSC_DIR
+export SLEPC_DIR=$SLEPC_DIR
+export SWIG_VERSION=$SWIG_VERSION
+export MPI4PY_VERSION=$MPI4PY_VERSION
+export PETSC4PY_VERSION=$PETSC4PY_VERSION
+export SLEPC4PY_VERSION=$SLEPC4PY_VERSION
+export TRILINOS_VERSION=$TRILINOS_VERSION
+export OPENBLAS_NUM_THREADS=$OPENBLAS_NUM_THREADS
+export OPENBLAS_VERBOSE=$OPENBLAS_VERBOSE
+export LC_ALL=$LC_ALL
+
+# Set the main path here
+export FENICS_HOME=$FENICS_HOME
+export FENICS_PREFIX=$FENICS_PREFIX
+
+if [ ! -d "$FENICS_HOME" ]
+then
+    mkdir -p $FENICS_HOME
+fi
+
+if [ ! -d "${FENICS_HOME}/src" ]
+then
+    mkdir -p $FENICS_HOME/src
+fi
+
+if [ ! -d "${FENICS_HOME}/lib/python${FENICS_PYTHON_MAJOR_VERSION}.${FENICS_PYTHON_MINOR_VERSION}/site-packages" ]
+then
+    mkdir -p ${FENICS_HOME}/lib/python${FENICS_PYTHON_MAJOR_VERSION}.${FENICS_PYTHON_MINOR_VERSION}/site-packages
+fi
+
+# Environment variables
+export PATH=${FENICS_HOME}/bin:${HOME}/bin:\${PATH}
+export LD_LIBRARY_PATH=${FENICS_HOME}/lib:\${LD_LIBRARY_PATH}
+export PKG_CONFIG_PATH=${FENICS_HOME}/lib/pkgconfig:\${PKG_CONFIG_PATH}
+export PYTHONPATH=${FENICS_HOME}/lib/python${FENICS_PYTHON_MAJOR_VERSION}.${FENICS_PYTHON_MINOR_VERSION}/site-packages:\${PYTHONPATH}
+export MANPATH=${FENICS_HOME}/share/man:\$MANPATH
+export SRC_DIR=${FENICS_HOME}/src
+export PYTHON=/usr/bin/python${FENICS_PYTHON_MAJOR_VERSION}
+" >> /environment 
+
+apt-get -qq update
+apt-get install python3-software-properties \
+        software-properties-common \
+        wget 
+
+add-apt-repository universe 
+apt-get -qq update
+
+apt-get install python-dev \
+        python-flufl.lock \
+        python-matplotlib \
+        python-numpy \
+        python-ply \
+        python-pytest \
+        python-scipy \
+        python-six \
+        python-urllib3 \
+	python-pip \
+        openmpi-bin \
+	libopenmpi-dev \
+	bison \
+	flex \
+	libopenblas-base \
+	libopenblas-dev \
+	liblapack-dev \
+	libpcre3-dev \
+	libpcre3 \
+	git \
+	libeigen3-dev \
+	libboost-dev \
+	libboost-all-dev \
+	libgmp-dev \
+	libmpfr-dev \
+	cmake \
+	vim
+
+pip install setuptools && \
+rm -rf /tmp/*
+
+wget --quiet -nc http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-lite-${PETSC_VERSION}.tar.gz && \
+tar -xf petsc-lite-${PETSC_VERSION}.tar.gz && \
+cd petsc-${PETSC_VERSION} && \
+./configure --COPTFLAGS="-O2" \
+            --CXXOPTFLAGS="-O2" \
+            --FOPTFLAGS="-O2" \
+            --with-blas-lib=/usr/lib/libopenblas.a \
+	    --with-lapack-lib=/usr/lib/liblapack.a \
+            --with-c-support \
+            --with-debugging=0 \
+            --with-shared-libraries \
+	    --enable-parallel=1 \
+            --download-suitesparse \
+            --download-scalapack \
+            --download-metis \
+            --download-parmetis \
+            --download-ptscotch \
+            --download-hypre \
+            --download-mumps \
+            --download-blacs \
+            --download-spai \
+            --download-ml \
+            --download-hdf5 \
+            --prefix=/usr/local && \
+make && \
+make install && \
+./configure --COPTFLAGS="-O2" \
+            --CXXOPTFLAGS="-O2" \
+            --FOPTFLAGS="-O2" \
+            --with-64-bit-indices \
+            --with-blas-lib=/usr/lib/libopenblas.a --with-lapack-lib=/usr/lib/liblapack.a \
+            --with-c-support \
+            --with-debugging=0 \
+            --with-shared-libraries \
+	    --enable-parallel=1 \
+            --download-suitesparse \
+            --download-metis \
+            --download-parmetis \
+            --download-ptscotch \
+            --download-hypre \
+            --download-superlu_dist \
+	    --download-hdf5 \
+            --prefix=/usr/local/petsc-64 && \
+make && \
+make install && \
+cd .. && rm -rf petsc*
+
+
+#Install SLEPc from source
+wget -nc --quiet https://bitbucket.org/slepc/slepc/get/v${SLEPC_VERSION}.tar.gz -O slepc-${SLEPC_VERSION}.tar.gz && \
+mkdir -p slepc-src && tar -xf slepc-${SLEPC_VERSION}.tar.gz -C slepc-src --strip-components 1 && \
+export PETSC_DIR=/usr/local && \
+cd slepc-src && \
+./configure --prefix=/usr/local && \
+make && \
+make install && \
+export PETSC_DIR=/usr/local/petsc-64 && \
+./configure --prefix=/usr/local/slepc-64 && \
+make && \
+make install  
+cd .. && rm -rf slepc*
+
+# Install Jupyter, sympy, mpi4py, petsc4py and slepc4py
+#  and swig from source
+pip install jupyter && \
+pip install sympy && \
+pip install https://bitbucket.org/mpi4py/mpi4py/downloads/mpi4py-${MPI4PY_VERSION}.tar.gz && \
+pip install https://bitbucket.org/petsc/petsc4py/downloads/petsc4py-${PETSC4PY_VERSION}.tar.gz && \
+pip install https://bitbucket.org/slepc/slepc4py/downloads/slepc4py-${SLEPC4PY_VERSION}.tar.gz && \
+wget -nc --quiet http://downloads.sourceforge.net/swig/swig-${SWIG_VERSION}.tar.gz && \
+tar xf swig-${SWIG_VERSION}.tar.gz && \
+cd swig-${SWIG_VERSION} && \
+./configure && \
+make && \
+make install
+cd .. && rm -rf swig*
+
+mkdir -p $FENICS_HOME/bin
+#   This should be changed at some point
+git clone https://github.com/ChrisHad/FEniCS.git 
+cp FEniCS/fenics* $FENICS_HOME/bin
+chmod +x $FENICS_HOME/bin/fenics-ctl
+#    source $FENICS_HOME/bin/fenics.env.conf
+#    fenics-ctl update
