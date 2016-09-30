@@ -3,26 +3,31 @@ OSVersion: xenial
 MirrorURL: http://mirror.bytemark.co.uk/ubuntu/
 Include: bash
 
+%runscript
+
+exec /usr/bin/python
+
 %post
 
-PETSC_VERSION=3.7.3
-SLEPC_VERSION=3.7.2
-FENICS_HOME=/usr/local/fenics
-FENICS_PYTHON_MAJOR_VERSION=2
-FENICS_PYTHON_MINOR_VERSION=7
-SLEPC_DIR=/usr/local/slepc-64
-PETSC_DIR=/usr/local/petsc-64
-SWIG_VERSION=3.0.10 
-MPI4PY_VERSION=2.0.0 
-PETSC4PY_VERSION=3.7.0 
-SLEPC4PY_VERSION=3.7.0 
-TRILINOS_VERSION=12.6.3 
-OPENBLAS_NUM_THREADS=1 
-OPENBLAS_VERBOSE=0
-LC_ALL=C
-FENICS_PREFIX=$FENICS_HOME/local
+export PETSC_VERSION=3.7.3
+export SLEPC_VERSION=3.7.2
+export FENICS_HOME=/usr/local/fenics
+export FENICS_PYTHON_MAJOR_VERSION=2
+export FENICS_PYTHON_MINOR_VERSION=7
+export SLEPC_DIR=/usr/local/slepc-64
+export PETSC_DIR=/usr/local/petsc-64
+export SWIG_VERSION=3.0.10 
+export MPI4PY_VERSION=2.0.0 
+export PETSC4PY_VERSION=3.7.0 
+export SLEPC4PY_VERSION=3.7.0 
+export TRILINOS_VERSION=12.6.3 
+export OPENBLAS_NUM_THREADS=1 
+export OPENBLAS_VERBOSE=0
+export LC_ALL=C
+export FENICS_PREFIX=$FENICS_HOME/local
 
 echo "
+# Environment variables
 export PETSC_VERSION=$PETSC_VERSION 
 export SLEPC_VERSION=$SLEPC_VERSION
 export FENICS_PYTHON_MAJOR_VERSION=$FENICS_PYTHON_MAJOR_VERSION
@@ -37,10 +42,16 @@ export TRILINOS_VERSION=$TRILINOS_VERSION
 export OPENBLAS_NUM_THREADS=$OPENBLAS_NUM_THREADS
 export OPENBLAS_VERBOSE=$OPENBLAS_VERBOSE
 export LC_ALL=$LC_ALL
-
 # Set the main path here
 export FENICS_HOME=$FENICS_HOME
 export FENICS_PREFIX=$FENICS_PREFIX
+export PATH=${FENICS_HOME}/bin:${HOME}/bin:\${PATH}
+export LD_LIBRARY_PATH=${FENICS_HOME}/lib:\${LD_LIBRARY_PATH}
+export PKG_CONFIG_PATH=${FENICS_HOME}/lib/pkgconfig:\${PKG_CONFIG_PATH}
+export PYTHONPATH=${FENICS_HOME}/lib/python${FENICS_PYTHON_MAJOR_VERSION}.${FENICS_PYTHON_MINOR_VERSION}/site-packages:\${PYTHONPATH}
+export MANPATH=${FENICS_HOME}/share/man:\$MANPATH
+export SRC_DIR=${FENICS_HOME}/src
+export PYTHON=/usr/bin/python${FENICS_PYTHON_MAJOR_VERSION}
 
 if [ ! -d "$FENICS_HOME" ]
 then
@@ -57,16 +68,9 @@ then
     mkdir -p ${FENICS_HOME}/lib/python${FENICS_PYTHON_MAJOR_VERSION}.${FENICS_PYTHON_MINOR_VERSION}/site-packages
 fi
 
-# Environment variables
-export PATH=${FENICS_HOME}/bin:${HOME}/bin:\${PATH}
-export LD_LIBRARY_PATH=${FENICS_HOME}/lib:\${LD_LIBRARY_PATH}
-export PKG_CONFIG_PATH=${FENICS_HOME}/lib/pkgconfig:\${PKG_CONFIG_PATH}
-export PYTHONPATH=${FENICS_HOME}/lib/python${FENICS_PYTHON_MAJOR_VERSION}.${FENICS_PYTHON_MINOR_VERSION}/site-packages:\${PYTHONPATH}
-export MANPATH=${FENICS_HOME}/share/man:\$MANPATH
-export SRC_DIR=${FENICS_HOME}/src
-export PYTHON=/usr/bin/python${FENICS_PYTHON_MAJOR_VERSION}
 " >> /environment 
 
+. /environment
 apt-get -qq update
 apt-get -y install python3-software-properties \
         software-properties-common \
@@ -170,6 +174,8 @@ cd .. && rm -rf slepc*
 
 # Install Jupyter, sympy, mpi4py, petsc4py and slepc4py
 #  and swig from source
+export PETSC_DIR=/usr/local/petsc-64
+export SLEPC_DIR=$SLEPC_DIR
 pip install jupyter && \
 pip install sympy && \
 pip install https://bitbucket.org/mpi4py/mpi4py/downloads/mpi4py-${MPI4PY_VERSION}.tar.gz && \
@@ -188,5 +194,11 @@ mkdir -p $FENICS_HOME/bin
 git clone https://github.com/ChrisHad/FEniCS.git 
 cp FEniCS/fenics* $FENICS_HOME/bin
 chmod +x $FENICS_HOME/bin/fenics-ctl
-#    source $FENICS_HOME/bin/fenics.env.conf
-#    fenics-ctl update
+echo $FENICS_HOME
+. $FENICS_HOME/bin/fenics.env.conf
+./$FENICS_HOME/bin/fenics-ctl update
+
+%test
+
+. /environment
+python $FENICS_HOME/share/dolfin/demo/documented/poisson/python/demo_poisson.py
