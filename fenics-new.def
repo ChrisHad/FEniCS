@@ -68,14 +68,14 @@ export PYTHON=/usr/bin/python${FENICS_PYTHON_MAJOR_VERSION}
 " >> /environment 
 
 apt-get -qq update
-apt-get install python3-software-properties \
+apt-get -y install python3-software-properties \
         software-properties-common \
         wget 
 
 add-apt-repository universe 
 apt-get -qq update
 
-apt-get install python-dev \
+apt-get -y install python-dev \
         python-flufl.lock \
         python-matplotlib \
         python-numpy \
