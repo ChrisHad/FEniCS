@@ -1,4 +1,4 @@
-BootStrap: debian
+BootStrap: debootstrap
 OSVersion: xenial
 MirrorURL: http://mirror.bytemark.co.uk/ubuntu/
 Include: bash
@@ -9,8 +9,8 @@ exec /usr/bin/python
 
 %post
 
-export PETSC_VERSION=3.7.3
-export SLEPC_VERSION=3.7.2
+export PETSC_VERSION=3.7.5
+export SLEPC_VERSION=3.7.3
 export FENICS_HOME=/usr/local/fenics
 export FENICS_PYTHON_MAJOR_VERSION=2
 export FENICS_PYTHON_MINOR_VERSION=7
@@ -20,11 +20,11 @@ export SWIG_VERSION=3.0.10
 export MPI4PY_VERSION=2.0.0 
 export PETSC4PY_VERSION=3.7.0 
 export SLEPC4PY_VERSION=3.7.0 
-export TRILINOS_VERSION=12.6.3 
+export TRILINOS_VERSION=12.10.1 
 export OPENBLAS_NUM_THREADS=1 
 export OPENBLAS_VERBOSE=0
 export LC_ALL=C
-export FENICS_PREFIX=$FENICS_HOME/local
+export FENICS_PREFIX=$FENICS_HOME
 
 echo "
 # Environment variables
@@ -105,38 +105,23 @@ apt-get -y install python-dev \
 	libgmp-dev \
 	libmpfr-dev \
 	cmake \
+	libmlx4-1 \
+	libmlx5-1 \
+	libdapl2 \
 	vim
 
 pip install setuptools && \
 rm -rf /tmp/*
 
+if [ ! -d "$PETSC_DIR" ]
+then
+    mkdir -p $PETSC_DIR
+fi
+
 wget --quiet -nc http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-lite-${PETSC_VERSION}.tar.gz && \
 tar -xf petsc-lite-${PETSC_VERSION}.tar.gz && \
 cd petsc-${PETSC_VERSION} && \
-./configure --COPTFLAGS="-O2" \
-            --CXXOPTFLAGS="-O2" \
-            --FOPTFLAGS="-O2" \
-            --with-blas-lib=/usr/lib/libopenblas.a \
-	    --with-lapack-lib=/usr/lib/liblapack.a \
-            --with-c-support \
-            --with-debugging=0 \
-            --with-shared-libraries \
-	    --enable-parallel=1 \
-            --download-suitesparse \
-            --download-scalapack \
-            --download-metis \
-            --download-parmetis \
-            --download-ptscotch \
-            --download-hypre \
-            --download-mumps \
-            --download-blacs \
-            --download-spai \
-            --download-ml \
-            --download-hdf5 \
-            --prefix=/usr/local && \
-make && \
-make install && \
-./configure --COPTFLAGS="-O2" \
+PETSC_DIR=$PWD ./configure --COPTFLAGS="-O2" \
             --CXXOPTFLAGS="-O2" \
             --FOPTFLAGS="-O2" \
             --with-64-bit-indices \
@@ -157,17 +142,17 @@ make && \
 make install && \
 cd .. && rm -rf petsc*
 
+if [ ! -d "$SLEPC_DIR" ]
+then
+    mkdir -p $SLEPC_DIR
+fi
 
 #Install SLEPc from source
 wget -nc --quiet https://bitbucket.org/slepc/slepc/get/v${SLEPC_VERSION}.tar.gz -O slepc-${SLEPC_VERSION}.tar.gz && \
 mkdir -p slepc-src && tar -xf slepc-${SLEPC_VERSION}.tar.gz -C slepc-src --strip-components 1 && \
-export PETSC_DIR=/usr/local && \
-cd slepc-src && \
-./configure --prefix=/usr/local && \
-make && \
-make install && \
 export PETSC_DIR=/usr/local/petsc-64 && \
-./configure --prefix=/usr/local/slepc-64 && \
+cd slepc-src && \
+SLEPC_DIR=$PWD ./configure --prefix=/usr/local/slepc-64 && \
 make && \
 make install  
 cd .. && rm -rf slepc*
