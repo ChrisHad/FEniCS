@@ -110,6 +110,7 @@ apt-get -y install python-dev \
 	libdapl2 \
 	vim
 
+pip install --upgrade pip
 pip install setuptools && \
 rm -rf /tmp/*
 
@@ -124,7 +125,6 @@ cd petsc-${PETSC_VERSION} && \
 PETSC_DIR=$PWD ./configure --COPTFLAGS="-O2" \
             --CXXOPTFLAGS="-O2" \
             --FOPTFLAGS="-O2" \
-            --with-64-bit-indices \
             --with-blas-lib=/usr/lib/libopenblas.a --with-lapack-lib=/usr/lib/liblapack.a \
             --with-c-support \
             --with-debugging=0 \
