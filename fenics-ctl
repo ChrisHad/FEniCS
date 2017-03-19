@@ -50,6 +50,7 @@ function build_cmake () {
  	  -DCMAKE_BUILD_TYPE=${FENICS_BUILD_TYPE}   \
 	  -DPYTHON_EXECUTABLE:FILEPATH=${PYTHON}    \
 	  -Wno-dev ${CMAKE_EXTRA_ARGS}		    \
+          -DHDF5_C_COMPILER_EXECUTABLE=$PETSC_DIR/bin/h5pcc \
 	  -DSLEPC4PY_INCLUDE_DIRS="/usr/local/lib/python2.7/dist-packages/petsc4py/include;/usr/local/lib/python2.7/dist-packages/slepc4py/include"
     make
     make install
