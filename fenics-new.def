@@ -3,55 +3,36 @@ OSVersion: xenial
 MirrorURL: http://mirror.bytemark.co.uk/ubuntu/
 Include: bash
 
-%runscript
+%environment
 
-exec /usr/bin/python
+export FENICS_HOME=/usr/local/fenics
+export FENICS_PREFIX=$FENICS_HOME
+export FENICS_PYTHON_MAJOR_VERSION=3
+export FENICS_PYTHON_MINOR_VERSION=5
+export LC_ALL=C
+export MPI4PY_VERSION=2.0.0 
+export OPENBLAS_NUM_THREADS=1 
+export OPENBLAS_VERBOSE=0
+export PETSC_DIR=/usr/local/petsc-64
+export PETSC_VERSION=3.7.6
+export PETSC4PY_VERSION=3.7.0 
+export SLEPC_DIR=/usr/local/slepc-64
+export SLEPC_VERSION=3.7.3
+export SLEPC4PY_VERSION=3.7.0 
+export SWIG_VERSION=3.0.10 
+export TRILINOS_VERSION=12.10.1 
+
+export PATH=$FENICS_HOME/bin:$HOME/bin:$PATH
+export LD_LIBRARY_PATH=$FENICS_HOME/lib:$LD_LIBRARY_PATH
+export PKG_CONFIG_PATH=$FENICS_HOME/lib/pkgconfig:$PKG_CONFIG_PATH
+export PYTHONPATH=$FENICS_HOME/lib/python${FENICS_PYTHON_MAJOR_VERSION}.${FENICS_PYTHON_MINOR_VERSION}/site-packages:$PYTHONPATH
+export MANPATH=$FENICS_HOME/share/man:$MANPATH
+export SRC_DIR=$FENICS_HOME/src
+export PYTHON=/usr/bin/python${FENICS_PYTHON_MAJOR_VERSION}
 
 %post
 
-export PETSC_VERSION=3.7.5
-export SLEPC_VERSION=3.7.3
-export FENICS_HOME=/usr/local/fenics
-export FENICS_PYTHON_MAJOR_VERSION=2
-export FENICS_PYTHON_MINOR_VERSION=7
-export SLEPC_DIR=/usr/local/slepc-64
-export PETSC_DIR=/usr/local/petsc-64
-export SWIG_VERSION=3.0.10 
-export MPI4PY_VERSION=2.0.0 
-export PETSC4PY_VERSION=3.7.0 
-export SLEPC4PY_VERSION=3.7.0 
-export TRILINOS_VERSION=12.10.1 
-export OPENBLAS_NUM_THREADS=1 
-export OPENBLAS_VERBOSE=0
-export LC_ALL=C
-export FENICS_PREFIX=$FENICS_HOME
-
-echo "
-# Environment variables
-export PETSC_VERSION=$PETSC_VERSION 
-export SLEPC_VERSION=$SLEPC_VERSION
-export FENICS_PYTHON_MAJOR_VERSION=$FENICS_PYTHON_MAJOR_VERSION
-export FENICS_PYTHON_MINOR_VERSION=$FENICS_PYTHON_MINOR_VERSION
-export PETSC_DIR=$PETSC_DIR
-export SLEPC_DIR=$SLEPC_DIR
-export SWIG_VERSION=$SWIG_VERSION
-export MPI4PY_VERSION=$MPI4PY_VERSION
-export PETSC4PY_VERSION=$PETSC4PY_VERSION
-export SLEPC4PY_VERSION=$SLEPC4PY_VERSION
-export TRILINOS_VERSION=$TRILINOS_VERSION
-export OPENBLAS_NUM_THREADS=$OPENBLAS_NUM_THREADS
-export OPENBLAS_VERBOSE=$OPENBLAS_VERBOSE
-export LC_ALL=$LC_ALL
-# Set the main path here
-export FENICS_HOME=$FENICS_HOME
-export FENICS_PREFIX=$FENICS_PREFIX
-export PATH=${FENICS_HOME}/bin:${HOME}/bin:\${PATH}
-export LD_LIBRARY_PATH=${FENICS_HOME}/lib:\${LD_LIBRARY_PATH}
-export PKG_CONFIG_PATH=${FENICS_HOME}/lib/pkgconfig:\${PKG_CONFIG_PATH}
-export PYTHONPATH=${FENICS_HOME}/lib/python${FENICS_PYTHON_MAJOR_VERSION}.${FENICS_PYTHON_MINOR_VERSION}/site-packages:\${PYTHONPATH}
-export MANPATH=${FENICS_HOME}/share/man:\$MANPATH
-export SRC_DIR=${FENICS_HOME}/src
-export PYTHON=/usr/bin/python${FENICS_PYTHON_MAJOR_VERSION}
+. /.singularity.d/env/90-environment.sh
 
 if [ ! -d "$FENICS_HOME" ]
 then
@@ -68,9 +49,6 @@ then
     mkdir -p ${FENICS_HOME}/lib/python${FENICS_PYTHON_MAJOR_VERSION}.${FENICS_PYTHON_MINOR_VERSION}/site-packages
 fi
 
-" >> /environment 
-
-. /environment
 apt-get -qq update
 apt-get -y install python3-software-properties \
         software-properties-common \
@@ -79,18 +57,18 @@ apt-get -y install python3-software-properties \
 add-apt-repository universe 
 apt-get -qq update
 
-apt-get -y install python-dev \
-        python-flufl.lock \
-        python-matplotlib \
-        python-numpy \
-        python-ply \
-        python-pytest \
-        python-scipy \
-        python-six \
-        python-urllib3 \
-	python-pip \
-        openmpi-bin \
-	libopenmpi-dev \
+apt-get -y install python3-dev \
+        python3-flufl.lock \
+        python3-matplotlib \
+        python3-numpy \
+        python3-ply \
+        python3-pytest \
+        python3-scipy \
+        python3-six \
+        python3-urllib3 \
+	python3-pip \
+        mpich \
+	libmpich-dev \
 	bison \
 	flex \
 	libopenblas-base \
@@ -109,16 +87,17 @@ apt-get -y install python-dev \
 	libmlx5-1 \
 	libdapl2 \
 	vim
+apt-get clean
 
-pip install --upgrade pip
-pip install setuptools && \
+pip3 install --upgrade pip
+pip3 install setuptools && \
 rm -rf /tmp/*
 
 if [ ! -d "$PETSC_DIR" ]
 then
     mkdir -p $PETSC_DIR
 fi
-
+cd /tmp
 wget --quiet -nc http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-lite-${PETSC_VERSION}.tar.gz && \
 tar -xf petsc-lite-${PETSC_VERSION}.tar.gz && \
 cd petsc-${PETSC_VERSION} && \
@@ -161,11 +140,11 @@ cd .. && rm -rf slepc*
 #  and swig from source
 export PETSC_DIR=/usr/local/petsc-64
 export SLEPC_DIR=$SLEPC_DIR
-pip install jupyter && \
-pip install sympy && \
-pip install https://bitbucket.org/mpi4py/mpi4py/downloads/mpi4py-${MPI4PY_VERSION}.tar.gz && \
-pip install https://bitbucket.org/petsc/petsc4py/downloads/petsc4py-${PETSC4PY_VERSION}.tar.gz && \
-pip install https://bitbucket.org/slepc/slepc4py/downloads/slepc4py-${SLEPC4PY_VERSION}.tar.gz && \
+pip3 install jupyter && \
+pip3 install sympy && \
+pip3 install https://bitbucket.org/mpi4py/mpi4py/downloads/mpi4py-${MPI4PY_VERSION}.tar.gz && \
+pip3 install https://bitbucket.org/petsc/petsc4py/downloads/petsc4py-${PETSC4PY_VERSION}.tar.gz && \
+pip3 install https://bitbucket.org/slepc/slepc4py/downloads/slepc4py-${SLEPC4PY_VERSION}.tar.gz && \
 wget -nc --quiet http://downloads.sourceforge.net/swig/swig-${SWIG_VERSION}.tar.gz && \
 tar xf swig-${SWIG_VERSION}.tar.gz && \
 cd swig-${SWIG_VERSION} && \
@@ -181,7 +160,11 @@ cp FEniCS/fenics* $FENICS_HOME/bin
 chmod +x $FENICS_HOME/bin/fenics-ctl
 echo $FENICS_HOME
 . $FENICS_HOME/bin/fenics.env.conf
-./$FENICS_HOME/bin/fenics-ctl update
+. $FENICS_HOME/bin/fenics-ctl update
+
+%runscript
+
+exec /usr/bin/python3
 
 %test
 
