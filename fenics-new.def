@@ -177,7 +177,7 @@ cp FEniCS/fenics* $FENICS_HOME/bin
 chmod +x $FENICS_HOME/bin/fenics-ctl
 echo $FENICS_HOME
 . $FENICS_HOME/bin/fenics.env.conf
-. $FENICS_HOME/bin/fenics-ctl update
+$FENICS_HOME/bin/fenics-ctl update
 
 %runscript
 
