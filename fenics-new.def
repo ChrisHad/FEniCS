@@ -32,6 +32,22 @@ export PYTHON=/usr/bin/python${FENICS_PYTHON_MAJOR_VERSION}
 
 %post
 
+export FENICS_HOME=/usr/local/fenics
+export FENICS_PREFIX=$FENICS_HOME
+export FENICS_PYTHON_MAJOR_VERSION=3
+export FENICS_PYTHON_MINOR_VERSION=5
+export PETSC_DIR=/usr/local/petsc-64
+export PETSC_VERSION=3.7.6
+export SLEPC_DIR=/usr/local/slepc-64
+export SLEPC_VERSION=3.7.3
+export SWIG_VERSION=3.0.10
+export PETSC4PY_VERSION=3.7.0
+export SLEPC4PY_VERSION=3.7.0
+export SRC_DIR=$FENICS_HOME/src
+export NUMPROCS=$(cat /proc/cpuinfo|grep ^processor|wc -l)
+export PYTHON=/usr/bin/python${FENICS_PYTHON_MAJOR_VERSION}
+export MPI4PY_VERSION=2.0.0
+
 . /.singularity.d/env/90-environment.sh
 
 if [ ! -d "$FENICS_HOME" ]
@@ -104,7 +120,8 @@ cd petsc-${PETSC_VERSION} && \
 PETSC_DIR=$PWD ./configure --COPTFLAGS="-O2" \
             --CXXOPTFLAGS="-O2" \
             --FOPTFLAGS="-O2" \
-            --with-blas-lib=/usr/lib/libopenblas.a --with-lapack-lib=/usr/lib/liblapack.a \
+            --with-blas-lib=/usr/lib/libopenblas.a \
+	    --with-lapack-lib=/usr/lib/liblapack.a \
             --with-c-support \
             --with-debugging=0 \
             --with-shared-libraries \

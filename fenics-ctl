@@ -2,7 +2,7 @@
 
 set -e
 
-PYTHON="${PYTHON:-python}"
+PYTHON="${PYTHON:-python${PYTHON_MAJOR_VERSION}}"
 FENICS_BUILD_TYPE="${FENICS_BUILD_TYPE:-Release}"
 
 if [ -z "$SRC_DIR" ]; then
@@ -51,7 +51,7 @@ function build_cmake () {
 	  -DPYTHON_EXECUTABLE:FILEPATH=${PYTHON}    \
 	  -Wno-dev ${CMAKE_EXTRA_ARGS}		    \
           -DHDF5_C_COMPILER_EXECUTABLE=$PETSC_DIR/bin/h5pcc \
-	  -DSLEPC4PY_INCLUDE_DIRS="/usr/local/lib/python2.7/dist-packages/petsc4py/include;/usr/local/lib/python2.7/dist-packages/slepc4py/include"
+	  -DSLEPC4PY_INCLUDE_DIRS="/usr/local/lib/python${FENICS_PYTHON_MAJOR_VERSION}.${FENICS_PYTHON_MINOR_VERSION}/dist-packages/petsc4py/include;/usr/local/lib/python${FENICS_PYTHON_MAJOR_VERSION}.${FENICS_PYTHON_MINOR_VERSION}/dist-packages/slepc4py/include"
     make
     make install
 }
