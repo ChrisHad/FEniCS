@@ -2,9 +2,9 @@
 
 set -e
 
-PYTHON="${PYTHON:-python${PYTHON_MAJOR_VERSION}}"
-FENICS_BUILD_TYPE="${FENICS_BUILD_TYPE:-Release}"
-MAKEPROCS=$(grep ^processor /proc/cpuinfo | wc -l)
+PYTHON="${PYTHON:-python${FENICS_PYTHON_MAJOR_VERSION}}"
+FENICS_BUILD_TYPE="${FENICS_BUILD_TYPE:-Developer}"
+MAKEPROCS=$(cat /proc/cpuinfo | grep processor|wc -l)
 
 if [ -z "$SRC_DIR" ]; then
     echo "SRC_DIR must be defined" >&2
@@ -49,9 +49,10 @@ function build_cmake () {
     cd "$build"
     cmake ../ -DCMAKE_INSTALL_PREFIX=${FENICS_HOME} \
  	  -DCMAKE_BUILD_TYPE=${FENICS_BUILD_TYPE}   \
+          -DDOLFIN_ENABLE_TESTING=ON                \
 	  -DPYTHON_EXECUTABLE:FILEPATH=${PYTHON}    \
 	  -Wno-dev ${CMAKE_EXTRA_ARGS}		    \
-          -DHDF5_C_COMPILER_EXECUTABLE=$PETSC_DIR/bin/h5pcc \
+          -DHDF5_C_COMPILER_EXECUTABLE=${PETSC_DIR}/bin/h5pcc \
 	  -DSLEPC4PY_INCLUDE_DIRS="/usr/local/lib/python${FENICS_PYTHON_MAJOR_VERSION}.${FENICS_PYTHON_MINOR_VERSION}/dist-packages/petsc4py/include;/usr/local/lib/python${FENICS_PYTHON_MAJOR_VERSION}.${FENICS_PYTHON_MINOR_VERSION}/dist-packages/slepc4py/include"
     make -j${MAKEPROCS}
     make install
