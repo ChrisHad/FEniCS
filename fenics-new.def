@@ -52,6 +52,7 @@ export PYTHONPATH=${FENICS_HOME}/lib/python${FENICS_PYTHON_MAJOR_VERSION}.${FENI
 export MANPATH=${FENICS_HOME}/share/man:\$MANPATH
 export SRC_DIR=${FENICS_HOME}/src
 export PYTHON=/usr/bin/python${FENICS_PYTHON_MAJOR_VERSION}
+export PYTHON_BIN=python${FENICS_PYTHON_MAJOR_VERSION}
 
 if [ ! -d "$FENICS_HOME" ]
 then
@@ -79,37 +80,39 @@ apt-get -y install python3-software-properties \
 add-apt-repository universe 
 apt-get -qq update
 
-apt-get -y install python-dev \
-        python-flufl.lock \
-        python-matplotlib \
-        python-numpy \
-        python-ply \
-        python-pytest \
-        python-scipy \
-        python-six \
-        python-urllib3 \
-	python-pip \
-        openmpi-bin \
-	libopenmpi-dev \
-	bison \
-	flex \
-	libopenblas-base \
-	libopenblas-dev \
-	liblapack-dev \
-	libpcre3-dev \
-	libpcre3 \
-	git \
-	libeigen3-dev \
-	libboost-dev \
-	libboost-all-dev \
-	libgmp-dev \
-	libmpfr-dev \
+apt-get -y install bison \
 	cmake \
+	flex \
+	git \
+	libboost-all-dev \
+	libboost-dev \
+	libdapl2 \
+	libeigen3-dev \
+	libgmp-dev \
+	liblapack-dev \
 	libmlx4-1 \
 	libmlx5-1 \
-	libdapl2 \
+	libmpfr-dev \
+	libopenmpi-dev \
+	libopenblas-base \
+	libopenblas-dev \
+	libpcre3-dev \
+	libpcre3 \
+        openmpi-bin \
+        ${PYTHON_BIN}-dev \
+        ${PYTHON_BIN}-flufl.lock \
+        ${PYTHON_BIN}-matplotlib \
+        ${PYTHON_BIN}-numpy \
+        ${PYTHON_BIN}-ply \
+        ${PYTHON_BIN}-pytest \
+        ${PYTHON_BIN}-scipy \
+        ${PYTHON_BIN}-six \
+        ${PYTHON_BIN}-urllib3 \
+	${PYTHON_BIN}-pip \
 	vim
 
+
+pip${FENICS_PYTHON_MAJOR_VERSION} install --upgrade pip${FENICS_PYTHON_MAJOR_VERSION}
 pip${FENICS_PYTHON_MAJOR_VERSION} install setuptools && \
 rm -rf /tmp/*
 
