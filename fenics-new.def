@@ -112,7 +112,7 @@ apt-get -y install bison \
 	vim
 
 
-pip${FENICS_PYTHON_MAJOR_VERSION} install --upgrade pip${FENICS_PYTHON_MAJOR_VERSION}
+pip${FENICS_PYTHON_MAJOR_VERSION} install --upgrade pip
 pip${FENICS_PYTHON_MAJOR_VERSION} install setuptools && \
 rm -rf /tmp/*
 
