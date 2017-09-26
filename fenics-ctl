@@ -70,7 +70,7 @@ function build () {
             build_cmake "$project"
         else
             cd "$path"
-            ${PYTHON} -m pip install --prefix=${FENICS_HOME} --no-deps --upgrade .
+            pip${FENICS_PYTHON_MAJOR_VERSION} install --prefix=${FENICS_HOME} --no-deps --upgrade .
         fi
     done
 }
