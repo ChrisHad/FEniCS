@@ -189,4 +189,4 @@ echo $FENICS_HOME
 %test
 
 . /environment
-python $FENICS_HOME/share/dolfin/demo/documented/poisson/python/demo_poisson.py
+${PYTHON} $FENICS_HOME/share/dolfin/demo/documented/poisson/python/demo_poisson.py
